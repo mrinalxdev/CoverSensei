@@ -1,13 +1,10 @@
-use std::{
-    fmt::format,
-    io::{stdout, Write},
-};
+use std::io::{stdout, Write};
 
 use anyhow::Ok;
 use crossterm::{
     cursor,
     event::{self, read},
-    style::{self},
+    style::{self,  Color, Stylize},
     terminal, ExecutableCommand, QueueableCommand,
 };
 
@@ -71,9 +68,21 @@ impl Editor {
     }
 
     pub fn draw_statusline(&mut self) -> anyhow::Result<()> {
+        let mode = format!("{:?} ", self.mode).to_uppercase().bold();
         self.stdout.queue(cursor::MoveTo(0, self.size.1 - 2))?;
-        self.stdout
-            .queue(style::Print(format!("{:?}", self.mode)))?;
+        self.stdout.queue(style::PrintStyledContent(
+            mode.with(Color::Rgb { r: 0, g: 0, b: 0 }).on(Color::Rgb {
+                r: 184,
+                g: 144,
+                b: 243,
+            }),
+        ))?;
+
+        let _ = self.stdout.queue(style::PrintStyledContent("⫸".with(Color::Rgb {
+            r : 184,
+            g: 184,
+            b : 243,
+        })));
 
         Ok(())
     }
