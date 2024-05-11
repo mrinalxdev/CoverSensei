@@ -4,7 +4,7 @@ use anyhow::Ok;
 use crossterm::{
     cursor,
     event::{self, read},
-    style::{self,  Color, Stylize},
+    style::{self, Color, Stylize},
     terminal, ExecutableCommand, QueueableCommand,
 };
 
@@ -68,7 +68,12 @@ impl Editor {
     }
 
     pub fn draw_statusline(&mut self) -> anyhow::Result<()> {
-        let mode = format!("{:?} ", self.mode).to_uppercase().bold();
+        let mode = format!(" {:?} ", self.mode).to_uppercase();
+        let file = " src/main.rs ";
+        let pos = format!(" {}:{} ", self.cx + 1, self.cy + 1);
+
+        let file_width = self.size.0 - mode.len() as u16 - pos.len() as u16 - 2;
+
         self.stdout.queue(cursor::MoveTo(0, self.size.1 - 2))?;
         self.stdout.queue(style::PrintStyledContent(
             mode.with(Color::Rgb { r: 0, g: 0, b: 0 }).on(Color::Rgb {
@@ -77,12 +82,28 @@ impl Editor {
                 b: 243,
             }),
         ))?;
+        self.stdout.queue(style::PrintStyledContent(
+            format!("{:>width$}", file, width = file_width as usize)
+                .white()
+                .bold()
+                .on(Color::Rgb {
+                    r: 67,
+                    g: 70,
+                    b: 89,
+                }),
+        ))?;
 
-        let _ = self.stdout.queue(style::PrintStyledContent("⫸".with(Color::Rgb {
-            r : 184,
-            g: 184,
-            b : 243,
-        })));
+        self.stdout.queue(style::PrintStyledContent(
+            pos.with(Color::Rgb {
+                r : 0,
+                g : 0,
+                b : 0,
+            }).bold().on(Color::Rgb {
+                r : 184,
+                g : 144,
+                b : 243,
+            })
+        ))?;
 
         Ok(())
     }
@@ -125,6 +146,10 @@ impl Editor {
         Ok(())
     }
     fn handle_event(&mut self, ev: event::Event) -> anyhow::Result<Option<Actions>> {
+        if let event::Event::Resize(width, height) = ev {
+            self.size = (width, height);
+            return Ok(None);
+        }
         match self.mode {
             Mode::Insert => self.handle_insert_event(ev),
             Mode::Normal => self.handle_normal_event(ev),
