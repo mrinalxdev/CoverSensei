@@ -1,16 +1,19 @@
 import React from "react";
 import { IoCaretBackOutline } from "react-icons/io5";
 import { ROUTES } from "../utils/routes";
+import { loadData, saveData } from "../utils/localStorage";
 
 const Profile = ({ setPage, resume, setResume, OpenAIKey, setOpenAIKey }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updatedResume = formData.get("resume");
-    const updatedOpenAIKey = formData.get("openAIKey");
-
+    const updatedOpenAIKey = formData.get("OpenAIKey");
     setResume(updatedResume);
     setOpenAIKey(updatedOpenAIKey);
+
+    saveData("resume", updatedResume);
+    loadData("OpenAIKey", updatedOpenAIKey);
   };
 
   return (
@@ -62,7 +65,7 @@ const Profile = ({ setPage, resume, setResume, OpenAIKey, setOpenAIKey }) => {
         <div className="mb-6 text-center">
           <button
             type="submit"
-            className="border-2 border-solid border-blue-500 text-blue-500 text-lg rounded-md px-5 py-2"
+            className="border-2 border-solid border-blue-500 text-blue-500 text-lg rounded-md px-5 py-2 hover:bg-blue-500 hover:text-white duration-100 ease-linear"
           >
             Save
           </button>
