@@ -11,8 +11,8 @@ function App() {
 
   useEffect(() => {
     const fetchLocalData = async () => {
-      const fetchedResume = await loadData("resume");
-      const fetchedAIKey = await loadData("OpenAIKey");
+      const fetchedResume = await loadData("");
+      const fetchedAIKey = await loadData("");
 
       setResume(fetchedResume);
       setOpenAIKey(fetchedAIKey);
